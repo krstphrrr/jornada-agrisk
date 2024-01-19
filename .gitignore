@@ -1,0 +1,11 @@
+# ignoring payment files until db is fixed
+
+**/payment*.php
+**/node_modules
+**/*.txt
+**/*.sql
+**/*.csv
+**/*.gz
+**/*.zip
+**/*.gz
+**/*.csv

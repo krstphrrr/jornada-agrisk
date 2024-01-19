@@ -1,0 +1,64 @@
+version: '3.8'
+services:
+  node:
+    build:
+      context: .
+      dockerfile: ./agrisk.Dockerfile
+    image: landscapedatacommons/jornada-agrisk:1.0.0
+    ports:
+      - 5007:3000
+      - 5006:80
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+
+        failure_action: rollback
+        delay: 20s
+    depends_on:
+      - agmysql
+
+  agmysql:
+    image: bitnami/mysql:8.1.0-debian-11-r8
+    environment:
+      MYSQL_DATABASE: rma
+      # MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysqlr
+      # MYSQL_USER_FILE: /run/secrets/mysqlu
+      # MYSQL_PASSWORD_FILE: /run/secrets/mysqlp
+      MYSQL_ROOT_PASSWORD: lter#root
+      MYSQL_USER: rma
+      MYSQL_PASSWORD: <jer>~<401>
+    volumes:
+      - db_data:/bitnami/mysql/data
+      - ./restoredb:/docker-entrypoint-initdb.d
+    secrets:
+      - mysqlr
+      - mysqlp
+      - mysqlu
+
+  php:
+    image: bitnami/phpmyadmin:5.2.1
+    ports:
+      - 5008:8080
+    environment:
+      # MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysqlr
+      DATABASE_HOST: agmysql
+      MYSQL_ROOT_PASSWORD: lter#root
+      PHP_UPLOAD_MAX_FILESIZE: 1G
+    restart: always
+    depends_on:
+      - agmysql
+    secrets:
+      - mysqlr
+
+secrets:
+  mysqlu:
+    file: mysqlu.txt
+  mysqlp:
+    file: mysqlp.txt
+  mysqlr:
+    file: mysqlr.txt
+
+volumes:
+  db_data: {}
+
